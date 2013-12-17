@@ -1,13 +1,11 @@
 package models;
-// TODO: Should this be Pair or PairType?
-
 
 /**
  * Model for holding a specific currency pair.
  * Currency pair: http://en.wikipedia.org/wiki/Currency_pair
  * @author Erwin
  */
-public class Pair {
+public class PairType {
 	
 	/**
 	 * The base currency (or transaction currency) is the normalized currency.
@@ -31,7 +29,7 @@ public class Pair {
 	 * @param base The type of currency acting as the base currency.
 	 * @param counter The type of currency acting as the counter currency.
 	 */
-	public Pair(CurrencyType base, CurrencyType counter) {
+	public PairType(CurrencyType base, CurrencyType counter) {
 		assert base != null && counter != null;
 		this.base = base;
 		this.counter = counter;
@@ -47,6 +45,6 @@ public class Pair {
 	}
 	
 	public String toString() {
-		return this.getBase() + Pair.SEPARATOR + this.getCounter();
+		return this.getBase() + PairType.SEPARATOR + this.getCounter();
 	}
 }
