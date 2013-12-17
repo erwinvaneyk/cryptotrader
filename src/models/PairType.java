@@ -2,8 +2,9 @@ package models;
 
 /**
  * Model for holding a specific currency pair.
- * Currency pair: http://en.wikipedia.org/wiki/Currency_pair
  * @author Erwin
+ * 
+ * Currency pair: http://en.wikipedia.org/wiki/Currency_pair
  */
 public class PairType {
 	

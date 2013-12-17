@@ -2,10 +2,10 @@ package models;
 
 /**
  * Model containing characteristics of a currency.
- * Similar to java.util.Currency, which is not used due to lack of extension to
- * 	non-standard currencies.
  * @author Erwin
  *
+ * Similar to java.util.Currency, which is not used due to lack of extension to
+ * 	non-standard currencies.
  */
 public class CurrencyType {
 	

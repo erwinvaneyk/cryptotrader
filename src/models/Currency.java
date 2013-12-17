@@ -2,10 +2,10 @@ package models;
 
 /**
  * Model containing info about the quantity of a currency.
+ * @author Erwin
+ * 
  * Naming conflict with java.util.Currency. The util.Currency will not
  * 	be used due to lacking functionality. So no problems there.
- * @author Erwin
- *
  */
 public class Currency {
 	
