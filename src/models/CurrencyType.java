@@ -95,7 +95,24 @@ public class CurrencyType {
 	public String getSymbol() {
 		return symbol;
 	}	
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CurrencyType other = (CurrencyType) obj;
+		if (ISOCode == null) {
+			if (other.ISOCode != null)
+				return false;
+		} else if (!ISOCode.equals(other.ISOCode))
+			return false;
+		return true;
+	}
+
 	public String toString() {
 		return this.getISOCode();
 	}
