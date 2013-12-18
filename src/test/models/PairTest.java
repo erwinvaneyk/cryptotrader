@@ -30,31 +30,6 @@ public class PairTest {
 	}
 
 	@Test
-	public void testSetBuy() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetSell() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetLast() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetVolume() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetLastUpdated() {
-		fail("Not yet implemented");
-	}
-
-	@Test
 	public void testToString() {
 		Pair pair = new Pair(this.getExchange(), this.getPairType());
 		assertNotNull(pair.toString());
