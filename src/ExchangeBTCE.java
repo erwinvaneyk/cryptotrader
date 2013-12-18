@@ -1,67 +1,115 @@
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gson.JsonObject;
-
-
 public class ExchangeBTCE extends Exchange implements IExchange {
-	protected String BASE_URL = "https://btc-e.com/api/2/";
-	
+	protected String BASE_URL = "https://btc-e.com/";
+
+	// TODO config file?
+	private String key = "API KEY";
+	private String secret = "SECRET KEY";
+
+
 	@Override
 	public void getInfo() throws ExchangeException {
-		// TODO Auto-generated method stub
+
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("method", "getInfo");
+
+		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		System.out.println(html);
 	}
-	
+
+
 	@Override
-	public Pair updatePair(Pair pair) throws ExchangeException {
-		String html = HTTPRetriever(BASE_URL + "ltc_usd/ticker");
+	public Pair updatePair(Pair pair) throws ExchangeException {		
+		String html = HTTPRetriever(BASE_URL + "api/2/ltc_usd/ticker", null);
 		JsonObject ticker = (JsonObject) getJson(html).get("ticker");
-		
+
 		// TODO: update old values in 'pair'
-		System.out.println("buy  : " + ticker.get("buy").getAsDouble());
+		System.out.println("buy  : " + ticker.get("buy"));
 		System.out.println("sell : " + ticker.get("sell"));
-		
+
 		return null;
 	}
 
+
 	@Override
 	public boolean isValidPair(Pair pair) throws ExchangeException {
-		// TODO Auto-generated method stub
 		return false;
 	}
+
 
 	@Override
 	public int placeOrder(Pair pair, String type, double rate, double amount)
 			throws ExchangeException {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
+
 	@Override
 	public boolean cancelOrder(int orderId) throws ExchangeException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
-	public void getActiveOrders() throws ExchangeException {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
-	public void getTransactionHistory() throws ExchangeException {
-		// TODO Auto-generated method stub
-		
-	}
+	public void getActiveOrders() throws ExchangeException {}
+
 
 	@Override
-	public void getTradeHistory(Pair pair) throws ExchangeException {
-		// TODO Auto-generated method stub
-		
+	public void getTransactionHistory() throws ExchangeException {}
+
+
+	@Override
+	public void getTradeHistory(Pair pair) throws ExchangeException {}
+
+
+	@Override
+	protected void configRequest(URLConnection connection, Map<String, String> args) throws ExchangeException {
+
+		if(args != null) {
+			args.put("nonce", getNonce() + "");
+
+			String postData = "";
+			for(Map.Entry<String, String> entry : args.entrySet()) {
+				postData += entry.getKey() + "=" + entry.getValue() + "&";
+			}
+			// remove last '&'
+			if(postData.length() > 0) // <- not necessary
+				postData = postData.substring(0, postData.length()-1);
+
+			// generate Sign
+			String sign = hmacDigest(postData, secret, "HmacSHA512");
+
+			// add headers
+			connection.setRequestProperty("Key", key);
+			connection.setRequestProperty("Sign", sign);
+
+			try {
+				// send post data
+				connection.setDoOutput(true);
+				OutputStreamWriter out = new OutputStreamWriter(
+						connection.getOutputStream());
+
+				out.write(postData);
+				out.close();
+
+			} catch(IOException e) {
+				throw new ExchangeException(e.getMessage());
+			}
+		}
 	}
-	
+
+
 	public static void main(String[] args) {
 		ExchangeBTCE ex = new ExchangeBTCE();
 		try {
 			ex.updatePair(null);
+			ex.getInfo();
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}
