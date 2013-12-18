@@ -23,12 +23,12 @@ public class PairTypeTest {
 		assertEquals(ptype.getCounter(), this.getType2());
 	}
 	
-	@Test(expected = Exception.class)
+	@Test(expected = AssertionError.class)
 	public void testPairTypeNull1() {
 		new PairType(null, this.getType2());
 	}
 
-	@Test(expected = Exception.class)
+	@Test(expected = AssertionError.class)
 	public void testPairTypeNull2() {
 		new PairType(this.getType1(), null);
 	}
