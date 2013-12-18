@@ -33,6 +33,13 @@ public class CurrencyTest {
 		Currency cur = new Currency(100.127, this.getType());
 		assertEquals(cur.getRoundedAmount(), 100.13, this.getEpsilon(cur));
 	}
+	
+	@Test
+	public void testSetAmount() {
+		Currency cur = new Currency(100, this.getType());
+		cur.setAmount(200);
+		assertEquals(cur.getAmount(), 200, this.getEpsilon(cur));
+	}
 
 	@Test
 	public void testToString() {
