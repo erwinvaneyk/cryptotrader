@@ -31,7 +31,13 @@ public class CurrencyType {
 	 * significance of 2.
 	 */
 	private int significance;
-
+	
+	/**
+	 * Path to the file containing the currency-types. (temporary)
+	 * Using: http://docs.oracle.com/javase/6/docs/api/java/util/Properties.html
+	 */
+	public static String SETTINGS_PATH = "currencytypes.ini"; 
+	
 	/**
 	 * Retrieves the CurrencyType of the ISOCode.
 	 * @param ISOCode The unique ISOCode of the relevant CurrencyType 
