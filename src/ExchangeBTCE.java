@@ -20,13 +20,14 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		args.put("method", "getInfo");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		validateRequest(getJson(html));
 		System.out.println(html);
 	}
 
 
 	@Override
 	public Pair updatePair(Pair pair) throws ExchangeException {		
-		String html = HTTPRetriever(BASE_URL + "api/2/ltc_usd/ticker", null);
+		String html = HTTPRetriever(BASE_URL + "api/2/ltc_usd/ticker", null);		
 		JsonObject ticker = (JsonObject) getJson(html).get("ticker");
 
 		// TODO: update old values in 'pair'
@@ -57,17 +58,47 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 
 	@Override
-	public void getActiveOrders() throws ExchangeException {}
+	public void getActiveOrders() throws ExchangeException {
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("method", "ActiveOrders");
+
+		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		validateRequest(getJson(html));
+		System.out.println(html);
+	}
 
 
 	@Override
-	public void getTransactionHistory() throws ExchangeException {}
+	public void getTransactionHistory() throws ExchangeException {
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("method", "TransHistory");
+
+		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		validateRequest(getJson(html));
+		System.out.println(html);
+	}
 
 
 	@Override
-	public void getTradeHistory(Pair pair) throws ExchangeException {}
+	public void getTradeHistory(Pair pair) throws ExchangeException {
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("method", "TradeHistory");
+
+		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		validateRequest(getJson(html));
+		System.out.println(html);
+	}
 
 
+	protected void validateRequest(JsonObject obj) throws ExchangeException {
+		if(obj != null && obj.get("success") != null) {
+			if(obj.get("success").getAsInt() == 0)
+				throw new ExchangeException(obj.get("error").getAsString());
+		} else {
+			throw new ExchangeException("BTC-E did not answer in proper format.");
+		}
+	}
+	
 	@Override
 	protected void configRequest(URLConnection connection, Map<String, String> args) throws ExchangeException {
 
@@ -110,6 +141,8 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		try {
 			ex.updatePair(null);
 			ex.getInfo();
+			ex.getTransactionHistory();
+			ex.getTradeHistory(null);
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}
