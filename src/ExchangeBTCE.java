@@ -47,12 +47,31 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	@Override
 	public int placeOrder(Pair pair, String type, double rate, double amount)
 			throws ExchangeException {
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("method", "Trade");
+		args.put("pair", "ltc_usd"); // TODO change to 'pair'
+		args.put("type", type);
+		args.put("rate", rate + "");
+		args.put("amount", amount + "");
+
+		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		validateRequest(getJson(html));
+		System.out.println(html);
+		
 		return 0;
 	}
 
 
 	@Override
 	public boolean cancelOrder(int orderId) throws ExchangeException {
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("method", "CancelOrder");
+		args.put("order_id", orderId + "");
+
+		String html = HTTPRetriever(BASE_URL + "tapi", args);
+		validateRequest(getJson(html));
+		System.out.println(html);
+		
 		return false;
 	}
 
@@ -63,7 +82,15 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		args.put("method", "ActiveOrders");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
-		validateRequest(getJson(html));
+		
+		try {
+			validateRequest(getJson(html));
+		} catch(ExchangeException e) {
+			if("no orders".equals(e.getMessage()))
+					System.out.println("error = no orders = ok, don't throw Exception");
+			else
+				throw e;
+		}
 		System.out.println(html);
 	}
 
@@ -141,8 +168,10 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		try {
 			ex.updatePair(null);
 			ex.getInfo();
-			ex.getTransactionHistory();
-			ex.getTradeHistory(null);
+			//ex.getTransactionHistory();
+			ex.getActiveOrders();
+			//ex.placeOrder(null, "sell", 199, 0.1);
+			//ex.placeOrder(null, "buy", 1, 0.1);
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}
