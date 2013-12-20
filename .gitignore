@@ -9,3 +9,5 @@
 *.ear
 .project
 .classpath
+
+data/collectALL.keys
