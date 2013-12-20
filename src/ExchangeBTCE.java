@@ -1,17 +1,28 @@
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import com.google.gson.JsonObject;
 public class ExchangeBTCE extends Exchange implements IExchange {
+	private static final String SETTINGS_PATH = "data/collectALL.keys";
+
 	protected String BASE_URL = "https://btc-e.com/";
 
-	// TODO config file?
-	private String key = "API KEY";
-	private String secret = "SECRET KEY";
+	private String key;
+	private String secret;
 
+	
+	public ExchangeBTCE() throws IOException {
+		Properties prop = new Properties();
+		prop.load(new FileInputStream(ExchangeBTCE.SETTINGS_PATH));
+		this.key = prop.getProperty("key");
+		this.secret = prop.getProperty("secret");
+		if (this.key == null || this.secret == null) throw new IOException("Key(s) invalid");
+	}
 
 	@Override
 	public void getInfo() throws ExchangeException {
@@ -163,7 +174,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		ExchangeBTCE ex = new ExchangeBTCE();
 		try {
 			ex.updatePair(null);
