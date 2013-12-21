@@ -19,7 +19,7 @@ public class Order {
 	/**
 	 * Buy or sell order?
 	 */
-	private int type; //BUY / SELL
+	private OrderType type; //BUY / SELL
 	
 	/**
 	 * Amount of Currency to trade.
@@ -35,6 +35,11 @@ public class Order {
 	 * The timestamp of the creation of the order.
 	 */
 	private long timestamp;
+	
+	/**
+	 * Executed?
+	 */
+	private boolean executed;
 
 	/**
 	 * Constructor
@@ -45,13 +50,14 @@ public class Order {
 	 * @param rate The rate/price at which the order should be executed at.
 	 * @param timestamp The time at which the order was placed on the exchange.
 	 */
-	public Order(long id, Pair pair, int type, Currency amount, double rate, long timestamp) {
+	public Order(long id, Pair pair, OrderType type, Currency amount, double rate, long timestamp, boolean executed) {
 		this.id = id;
 		this.pair = pair;
 		this.type = type;
 		this.amount = amount;
 		this.rate = rate;
 		this.timestamp = timestamp;
+		this.executed = executed;
 	}
 
 	public long getId() {
@@ -62,7 +68,7 @@ public class Order {
 		return pair;
 	}
 
-	public int getType() {
+	public OrderType getType() {
 		return type;
 	}
 
@@ -78,6 +84,10 @@ public class Order {
 		return timestamp;
 	}
 	
+	public boolean isExecuted() {
+		return executed;
+	}
+
 	public String toString() {
 		return this.getType() + " " + this.getAmount() + " @ " + this.getRate() + " " + this.getPair().getType();
 	}
