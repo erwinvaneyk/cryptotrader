@@ -17,8 +17,8 @@ import com.google.gson.JsonParser;
 
 public abstract class Exchange {
 	protected String BASE_URL = "undefined/";
-
 	
+	protected String name = "undefined";
 	
 	protected String HTTPRetriever(String url, Map<String, String> args) throws ExchangeException {
 		String result = "";
@@ -50,8 +50,14 @@ public abstract class Exchange {
 	protected int getNonce() {
 		return (int) new Date().getTime();
 	}
-
 	
+	public String getName() {
+		return name;
+	}
+
+	public String toString() {
+		return getName();
+	}
 	
 	protected void configRequest(URLConnection connection, Map<String, String> args) throws ExchangeException {}
 

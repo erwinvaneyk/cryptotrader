@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import models.CurrencyType;
+import models.Pair;
+import models.PairType;
+
 import com.google.gson.JsonObject;
 public class ExchangeBTCE extends Exchange implements IExchange {
 	private static final String SETTINGS_PATH = "data/collectALL.keys";
@@ -17,6 +21,9 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 	
 	public ExchangeBTCE() throws IOException {
+		
+		name = "BTC-E";
+		
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(ExchangeBTCE.SETTINGS_PATH));
 		this.key = prop.getProperty("key");
@@ -24,6 +31,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		if (this.key == null || this.secret == null) throw new IOException("Key(s) invalid");
 	}
 
+	
 	@Override
 	public void getInfo() throws ExchangeException {
 
@@ -37,15 +45,28 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 
 	@Override
-	public Pair updatePair(Pair pair) throws ExchangeException {		
-		String html = HTTPRetriever(BASE_URL + "api/2/ltc_usd/ticker", null);		
+	public Pair updatePair(Pair pair) throws ExchangeException {
+		String url = BASE_URL + 
+				"api/2/" +
+				getFormatPair(pair) +
+				"/ticker";
+		
+		String html = HTTPRetriever(url, null);
+		
 		JsonObject ticker = (JsonObject) getJson(html).get("ticker");
+		
+		if(ticker == null)
+			throw new ExchangeException(getJson(html).get("error").toString());
 
-		// TODO: update old values in 'pair'
-		System.out.println("buy  : " + ticker.get("buy"));
-		System.out.println("sell : " + ticker.get("sell"));
+		pair.setBuy(ticker.get("buy").getAsDouble());
+		pair.setSell(ticker.get("sell").getAsDouble());
+		pair.setLast(ticker.get("last").getAsDouble());
+		pair.setVolume(ticker.get("vol").getAsLong());
+		pair.setLastUpdated(ticker.get("updated").getAsLong());
+		
+		System.out.println(pair);
 
-		return null;
+		return pair;
 	}
 
 
@@ -60,7 +81,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "Trade");
-		args.put("pair", "ltc_usd"); // TODO change to 'pair'
+		args.put("pair", getFormatPair(pair));
 		args.put("type", type);
 		args.put("rate", rate + "");
 		args.put("amount", amount + "");
@@ -97,9 +118,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		try {
 			validateRequest(getJson(html));
 		} catch(ExchangeException e) {
-			if("no orders".equals(e.getMessage()))
-					System.out.println("error = no orders = ok, don't throw Exception");
-			else
+			if(!"no orders".equals(e.getMessage()))
 				throw e;
 		}
 		System.out.println(html);
@@ -112,7 +131,14 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		args.put("method", "TransHistory");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
-		validateRequest(getJson(html));
+		
+		try {
+			validateRequest(getJson(html));
+		} catch(ExchangeException e) {
+			if(!"no transactions".equals(e.getMessage()))
+				throw e;
+		}
+		
 		System.out.println(html);
 	}
 
@@ -136,6 +162,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			throw new ExchangeException("BTC-E did not answer in proper format.");
 		}
 	}
+	
 	
 	@Override
 	protected void configRequest(URLConnection connection, Map<String, String> args) throws ExchangeException {
@@ -172,17 +199,29 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			}
 		}
 	}
+	
+	
+	private String getFormatPair(Pair pair) {
+		return pair.getType().getBase().getISOCode().toLowerCase() + "_" +
+			   pair.getType().getCounter().getISOCode().toLowerCase();
+	}
 
-
+	
 	public static void main(String[] args) throws IOException {
-		ExchangeBTCE ex = new ExchangeBTCE();
+		ExchangeBTCE ex  = new ExchangeBTCE();
+		CurrencyType ltc = new CurrencyType("ltc","LTC","L",4);
+		CurrencyType usd = new CurrencyType("usd","dollar","$",2);
+		PairType ltc_usd = new PairType(ltc, usd);
+		Pair pair = new Pair(ex, ltc_usd);
+		
 		try {
-			ex.updatePair(null);
+			ex.updatePair(pair);
 			ex.getInfo();
-			//ex.getTransactionHistory();
+			ex.getTransactionHistory();
 			ex.getActiveOrders();
-			//ex.placeOrder(null, "sell", 199, 0.1);
-			//ex.placeOrder(null, "buy", 1, 0.1);
+			/*ex.cancelOrder(order_id);
+			ex.placeOrder(null, "sell", 199, 0.1);
+			ex.placeOrder(pair, "sell", 199, 0.1);*/
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}

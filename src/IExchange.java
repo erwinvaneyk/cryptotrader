@@ -1,3 +1,5 @@
+import models.Pair;
+
 /**
  * @author Tim Rensen
  */
