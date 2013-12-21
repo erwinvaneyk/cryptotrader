@@ -1,4 +1,5 @@
 *.class
+collectALLkeys.ini
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -8,5 +9,3 @@
 *.ear
 .project
 .classpath
-
-data/collectALL.keys
