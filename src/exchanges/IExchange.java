@@ -1,3 +1,4 @@
+package exchanges;
 import models.Pair;
 
 /**
