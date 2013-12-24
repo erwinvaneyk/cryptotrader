@@ -210,7 +210,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	
 	public static void main(String[] args) throws IOException {
 		ExchangeBTCE ex  = new ExchangeBTCE();
-		CurrencyType ltc = CurrencyType.getInstance("ltc")
+		CurrencyType ltc = CurrencyType.getInstance("ltc");
 		CurrencyType usd = CurrencyType.getInstance("usd");
 		PairType ltc_usd = new PairType(ltc, usd);
 		Pair pair = new Pair(ex, ltc_usd);
