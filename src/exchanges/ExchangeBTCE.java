@@ -64,9 +64,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		pair.setLast(ticker.get("last").getAsDouble());
 		pair.setVolume(ticker.get("vol").getAsLong());
 		pair.setLastUpdated(ticker.get("updated").getAsLong());
-		
-		System.out.println(pair);
-
 		return pair;
 	}
 

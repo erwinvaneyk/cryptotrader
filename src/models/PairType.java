@@ -1,5 +1,7 @@
 package models;
 
+import java.io.IOException;
+
 /**
  * Model for holding a specific currency pair.
  * @author Erwin
@@ -35,7 +37,35 @@ public class PairType {
 		this.base = base;
 		this.counter = counter;
 	}
-
+	
+	/**
+	 * Constructor for a Pair-object, using a shortcut, which instantly generates 
+	 * 	the CurrencyTypes needed. (May cause redundant objects!) 
+	 * @param base The type of currency acting as the base currency.
+	 * @param counter The type of currency acting as the counter currency.
+	 * @throws IOException If unknown currency has been queried.
+	 */
+	public PairType(String base, String counter) throws IOException {
+		assert base != null && counter != null;
+		this.base = CurrencyType.getInstance(base);
+		this.counter = CurrencyType.getInstance(counter);
+		
+	}
+	
+	/**
+	 * Constructor for a Pair-object, using another(!) shortcut, which instantly generates 
+	 * 	the CurrencyTypes needed. (May cause redundant objects!) 
+	 * @param base The type of currency acting as the base currency.
+	 * @param counter The type of currency acting as the counter currency.
+	 * @throws IOException If unknown currency has been queried.
+	 */	
+	public PairType(String composed) throws IOException {
+		assert composed != null;
+		String[] types = composed.split(PairType.SEPARATOR);
+		this.base = CurrencyType.getInstance(types[0].toLowerCase());
+		this.counter = CurrencyType.getInstance(types[1].toLowerCase());
+		
+	}
 	
 	public CurrencyType getBase() {
 		return base;
