@@ -2,11 +2,8 @@ package cli;
 
 import java.io.IOException;
 import java.util.Scanner;
-
 import models.*;
-
 import org.apache.commons.cli.*;
-
 import exchanges.ExchangeBTCE;
 
 public class CryptotraderCLI {
@@ -59,6 +56,8 @@ public class CryptotraderCLI {
 					activeOrdersAction(parser, args);
 				} else if(args[0].equalsIgnoreCase("help")) {
 					helpAction(parser, args);
+				} else if(args[0].equalsIgnoreCase("exit") || args[0].equalsIgnoreCase("quit")) {
+					keeponrunning = false;
 				} else {
 					throw new Exception("unknown command");
 				}
@@ -67,6 +66,8 @@ public class CryptotraderCLI {
 				System.out.println("[error] " + e.getMessage());
 			}			
 		}
+		reader.close();
+		System.out.println("Application closed.");
 	}
 	
 	private void helpAction(CommandLineParser parser, String[] args) throws Exception {
@@ -75,6 +76,7 @@ public class CryptotraderCLI {
 		options.addOption("balance", false, "Fetches the balance of the user on the exchange.");
 		options.addOption("orders", false, "Gets the active orders of the user.");
 		options.addOption("help", false, "This.");
+		options.addOption("exit", false, "Exit the CLI application. (Same functionality as 'quit')");
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("Cryptotrader CLI", options);
 	}
