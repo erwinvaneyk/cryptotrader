@@ -30,9 +30,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	private String secret;
 
 	
-	public ExchangeBTCE() throws IOException {
-		name = NAME;
-		
+	public ExchangeBTCE() throws IOException {		
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(ExchangeBTCE.SETTINGS_PATH));
 		this.key = prop.getProperty("key");
@@ -306,5 +304,11 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	@Override
+	public String getName() {
+		return NAME;
 	}
 }
