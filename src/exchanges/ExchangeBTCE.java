@@ -16,6 +16,7 @@ import models.OrderType;
 import models.Pair;
 import models.PairType;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 public class ExchangeBTCE extends Exchange implements IExchange {
@@ -46,7 +47,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		args.put("method", "getInfo");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
-		validateRequest(getJson(html));
+		validateRequest(getJsonObject(html));
 		System.out.println(html);
 	}
 
@@ -60,10 +61,10 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		
 		String html = HTTPRetriever(url, null);
 		
-		JsonObject ticker = (JsonObject) getJson(html).get("ticker");
+		JsonObject ticker = (JsonObject) getJsonObject(html).get("ticker");
 		
 		if(ticker == null)
-			throw new ExchangeException(getJson(html).get("error").toString());
+			throw new ExchangeException(getJsonObject(html).get("error").toString());
 
 		pair.setBuy(ticker.get("buy").getAsDouble());
 		pair.setSell(ticker.get("sell").getAsDouble());
@@ -80,8 +81,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 
-	@Override
-	public int placeOrder(Pair pair, String type, double rate, double amount) throws ExchangeException {
+	private int placeOrder(Pair pair, String type, double rate, double amount) throws ExchangeException {
 		assert ExchangeBTCE.BUY.equals(type) || ExchangeBTCE.SELL.equals(type);
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "Trade");
@@ -91,10 +91,11 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		args.put("amount", amount + "");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
-		validateRequest(getJson(html));
-		System.out.println(html);
+		validateRequest(getJsonObject(html));
 		
-		return 0;
+		JsonObject ret = (JsonObject) getJsonObject(html).get("return");
+		
+		return ret.get("order_id").getAsInt();
 	}
 	
 	@Override
@@ -110,16 +111,13 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 
 	@Override
-	public boolean cancelOrder(int orderId) throws ExchangeException {
+	public void cancelOrder(int orderId) throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "CancelOrder");
 		args.put("order_id", orderId + "");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
-		validateRequest(getJson(html));
-		System.out.println(html);
-		
-		return false;
+		validateRequest(getJsonObject(html));
 	}
 
 
@@ -131,7 +129,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
 		
 		try {
-			validateRequest(getJson(html));
+			validateRequest(getJsonObject(html));
 		} catch(ExchangeException e) {
 			if(!"no orders".equals(e.getMessage()))
 				throw e;
@@ -139,7 +137,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			return new Order[0];
 		}
 		
-		JsonObject ret = (JsonObject) getJson(html).get("return");
+		JsonObject ret = (JsonObject) getJsonObject(html).get("return");
 		
 		/**
 		 * ret (return) looks like:
@@ -212,23 +210,52 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
 		
 		try {
-			validateRequest(getJson(html));
+			validateRequest(getJsonObject(html));
 		} catch(ExchangeException e) {
 			if(!"no transactions".equals(e.getMessage()))
 				throw e;
+			
+			// return Order[0]
 		}
 		
 		System.out.println(html);
 	}
+	
+	
+	/**
+	 * Gets the 'count' most recent whether or not personal trades.
+	 * @param pair Pair to use.
+	 * @param count number of trades to obtain.
+	 * @throws ExchangeException
+	 */
+	public void getRecentTrades(Pair pair, int count) throws ExchangeException {
+		String url = BASE_URL + 
+				"api/2/" +
+				getFormatPair(pair) +
+				"/trades/" +
+				count;
+		
+		String html = HTTPRetriever(url, null);
+		
+		JsonArray trades = getJsonArray(html);
+		System.out.println(trades);
+	}
 
 
 	@Override
-	public void getTradeHistory(Pair pair) throws ExchangeException {
+	public void getTradeHistory() throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "TradeHistory");
 
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
-		validateRequest(getJson(html));
+		try {
+			validateRequest(getJsonObject(html));
+		} catch(ExchangeException e) {
+			if(!"no trades".equals(e.getMessage()))
+				throw e;
+			
+			// return Order[0]
+		}
 		System.out.println(html);
 	}
 
@@ -297,10 +324,11 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			ex.updatePair(pair);
 			ex.getInfo();
 			ex.getTransactionHistory();
+			ex.getTradeHistory();
 			ex.getActiveOrders();
+			ex.getRecentTrades(pair, 5);
 			/*ex.cancelOrder(order_id);
-			ex.placeOrder(null, "sell", 199, 0.1);*/
-			//ex.placeOrder(pair, ExchangeBTCE.SELL, 199, 0.1);
+			//ex.placeOrder(pair, ExchangeBTCE.SELL, 199, 0.1);*/
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}

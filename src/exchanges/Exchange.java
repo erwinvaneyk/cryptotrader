@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -60,10 +61,18 @@ public abstract class Exchange {
 
 	
 	
-	protected static JsonObject getJson(String json) {
+	protected static JsonObject getJsonObject(String json) {
 		JsonParser jsonParser = new JsonParser();
 		JsonObject jsonObj = (JsonObject) jsonParser.parse(json);
 		return jsonObj;
+	}
+	
+	
+	
+	protected static JsonArray getJsonArray(String json) {
+		JsonParser jsonParser = new JsonParser();
+		JsonArray jsonArr = (JsonArray) jsonParser.parse(json);
+		return jsonArr;
 	}
 
 	
