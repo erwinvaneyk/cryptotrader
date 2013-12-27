@@ -1,6 +1,7 @@
 package cli;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 import models.*;
 import org.apache.commons.cli.*;
@@ -101,7 +102,7 @@ public class CryptotraderCLI {
 	}
 	
 	private void activeOrdersAction(CommandLineParser parser, String[] args) throws Exception {
-		ex.getActiveOrders();
+		System.out.println(Arrays.toString(ex.getActiveOrders()));
 	}
 	
 	private void sellAction(CommandLineParser parser, String[] args) throws Exception {
@@ -164,10 +165,8 @@ public class CryptotraderCLI {
 		CommandLine line = parser.parse(options, args);
 		if(line.hasOption("id")) {
 			int id = Integer.parseInt(line.getOptionValue("id"));
-			if(ex.cancelOrder(id))
-				System.out.println("Order was succesfully canceled!");
-			else
-				throw new Exception("order could not be canceled.");
+			ex.cancelOrder(id);
+			System.out.println("Order was succesfully canceled!");
 				
 		} else {
 			HelpFormatter formatter = new HelpFormatter();
