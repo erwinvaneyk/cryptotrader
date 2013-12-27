@@ -1,0 +1,25 @@
+<configuration>
+  <appender name="ExchangeIO-FILE" class="ch.qos.logback.core.FileAppender">
+    <file>data/exchangeIO.log</file>
+    <encoder>
+      <pattern>%date [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+  <!-- logs all raw communication between server and client -->
+  <logger name="exchanges.io">
+    <appender-ref ref="ExchangeIO-FILE" />
+  </logger>
+
+  <root level="debug">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
+
+<!-- manual: http://logback.qos.ch/manual/configuration.html -->

@@ -1,11 +1,13 @@
 *.class
-collectALLkeys.ini
+collectALL.keys
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
+bin/
 
 # Package Files #
 *.war
 *.ear
 .project
 .classpath
+.log
