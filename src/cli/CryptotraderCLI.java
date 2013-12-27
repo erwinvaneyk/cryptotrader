@@ -14,16 +14,6 @@ public class CryptotraderCLI {
 	private boolean keeponrunning = true; // Keep program running
 	
 	public static void main(String[] args) {
-		// Program
-		/* 
-		 * buy -pair -amount [rate]
-		 * sell -pair -amount [rate]
-		 * orders //list orders
-		 * tick -pair
-		 * tradehistory 
-		 * balance //list balance contents
-		 * 
-		 */
 		CryptotraderCLI ctc = new CryptotraderCLI();
 		try {
 			System.out.println(CryptotraderCLI.NAME);
@@ -56,6 +46,12 @@ public class CryptotraderCLI {
 					activeOrdersAction(parser, args);
 				} else if(args[0].equalsIgnoreCase("help")) {
 					helpAction(parser, args);
+				} else if(args[0].equalsIgnoreCase("buy")) {
+					buyAction(parser, args);
+				} else if(args[0].equalsIgnoreCase("sell")) {
+					sellAction(parser, args);
+				} else if(args[0].equalsIgnoreCase("cancel")) {
+					cancelAction(parser, args);
 				} else if(args[0].equalsIgnoreCase("exit") || args[0].equalsIgnoreCase("quit")) {
 					keeponrunning = false;
 				} else {
@@ -75,6 +71,9 @@ public class CryptotraderCLI {
 		options.addOption("tick", false, "Retrieves the newest data for a specific pair.");
 		options.addOption("balance", false, "Fetches the balance of the user on the exchange.");
 		options.addOption("orders", false, "Gets the active orders of the user.");
+		options.addOption("sell", false, "Sells an amount of the base currency for a specified rate.");
+		options.addOption("buy", false, "Buys an amount of the base currency for a specified rate.");
+		options.addOption("cancel", false, "Cancels a specific order.");
 		options.addOption("help", false, "This.");
 		options.addOption("exit", false, "Exit the CLI application. (Same functionality as 'quit')");
 		HelpFormatter formatter = new HelpFormatter();
@@ -103,5 +102,76 @@ public class CryptotraderCLI {
 	
 	private void activeOrdersAction(CommandLineParser parser, String[] args) throws Exception {
 		ex.getActiveOrders();
+	}
+	
+	private void sellAction(CommandLineParser parser, String[] args) throws Exception {
+		// Option setup		
+		Options options = new Options();
+		options.addOption("p", "pair", true, "An (exchange-)supported pair");
+		options.addOption("r", "rate", true, "The rate for the sell order (1 base currency for X counter currency)");
+		options.addOption("a", "amount", true, "The amount of the base currency to sell (default: 0.01)");
+		CommandLine line = parser.parse(options, args);
+		// If no arguments are provided, show help
+		if(line.getOptions().length == 1) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("sell", options);
+		} else {
+			// If pair argument are missing, show error
+			if((line.getOptionValue("p") == null) || (line.getOptionValue("r") == null)) 
+				throw new Exception("Argument missing");
+			else {
+				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
+				double rate = Double.parseDouble(line.getOptionValue("r"));				
+				double amount = Double.parseDouble(line.getOptionValue("a","0.01"));
+				if(rate < (pair.getBuy() * 1.1)) throw new Exception("Sell order is too risky.");
+				int id = ex.sellOrder(pair, rate, amount);
+				System.out.println("Order created! ID: " + id);
+			}
+		}
+	}
+	
+	private void buyAction(CommandLineParser parser, String[] args) throws Exception {
+		// Option setup
+		Options options = new Options();
+		options.addOption("p", "pair", true, "An (exchange-)supported pair");
+		options.addOption("r", "rate", true, "The rate for the buy order (1 base currency for X counter currency)");
+		options.addOption("a", "amount", true, "The amount of the base currency to buy (default: 0.01)");
+		CommandLine line = parser.parse(options, args);
+		// If no arguments are provided, show help
+		if(line.getOptions().length == 1) {
+			System.out.println("1");
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("buy", options);
+		} else {
+			// If pair argument are missing, show error
+			if((line.getOptionValue("p") == null) || (line.getOptionValue("r") == null)) 
+				throw new Exception("Argument missing");
+			else {
+				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
+				double rate = Double.parseDouble(line.getOptionValue("r"));				
+				double amount = Double.parseDouble(line.getOptionValue("a","0.01"));
+				if(rate > (pair.getSell() * 0.9)) throw new Exception("Buy order is too risky.");
+				int id = ex.buyOrder(pair, rate, amount);
+				System.out.println("Order created! ID: " + id);
+			}
+		}
+	}
+	
+	private void cancelAction(CommandLineParser parser, String[] args) throws Exception {
+		// Option setup
+		Options options = new Options();
+		options.addOption("id", true, "The id of the order");
+		CommandLine line = parser.parse(options, args);
+		if(line.hasOption("id")) {
+			int id = Integer.parseInt(line.getOptionValue("id"));
+			if(ex.cancelOrder(id))
+				System.out.println("Order was succesfully canceled!");
+			else
+				throw new Exception("order could not be canceled.");
+				
+		} else {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("tick", options);
+		}
 	}
 }
