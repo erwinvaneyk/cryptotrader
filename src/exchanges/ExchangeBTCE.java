@@ -3,17 +3,25 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
+import models.Currency;
 import models.CurrencyType;
+import models.Order;
+import models.OrderType;
 import models.Pair;
 import models.PairType;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 public class ExchangeBTCE extends Exchange implements IExchange {
 	private static final String SETTINGS_PATH = "data/collectALL.keys";
+	private static final String NAME = "BTC-E";
 	private static final String SELL = "sell";
 	private static final String BUY = "buy";
 
@@ -24,8 +32,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 	
 	public ExchangeBTCE() throws IOException {
-		
-		name = "BTC-E";
+		name = NAME;
 		
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(ExchangeBTCE.SETTINGS_PATH));
@@ -78,7 +85,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 	@Override
 	public int placeOrder(Pair pair, String type, double rate, double amount) throws ExchangeException {
-		assert type.equals(ExchangeBTCE.BUY) || type.equals(ExchangeBTCE.SELL);
+		assert ExchangeBTCE.BUY.equals(type) || ExchangeBTCE.SELL.equals(type);
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "Trade");
 		args.put("pair", getFormatPair(pair));
@@ -120,7 +127,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 
 	@Override
-	public void getActiveOrders() throws ExchangeException {
+	public Order[] getActiveOrders() throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "ActiveOrders");
 
@@ -131,8 +138,72 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		} catch(ExchangeException e) {
 			if(!"no orders".equals(e.getMessage()))
 				throw e;
+
+			return new Order[0];
 		}
-		System.out.println(html);
+		
+		JsonObject ret = (JsonObject) getJson(html).get("return");
+		
+		/**
+		 * ret (return) looks like:
+		 * 	{
+		 * 		"order_id":{
+		 * 			"pair":"xxx_xxx",
+		 * 			"type":"sell/buy",
+		 * 			"amount": X,
+		 * 			"rate": X,
+		 * 			"timestamp_created": X,
+		 * 			"status": X
+		 * 		}, ...
+		 * 	}
+		 */
+		
+		int size = ret.entrySet().size();
+		Order[] result = new Order[size];
+
+		int i = 0;
+		Iterator<Entry<String, JsonElement>> it = ret.entrySet().iterator();
+		
+		while(it.hasNext()) {
+			Entry<String, JsonElement> entry = it.next();
+			// ORDER ID
+			int order_id = Integer.parseInt(entry.getKey());
+
+			JsonObject value = (JsonObject) entry.getValue();
+
+			// PAIR
+			String[] p = value.get("pair").getAsString().split("_");
+			
+			CurrencyType base = null, counter = null;
+			try {
+				base = CurrencyType.getInstance(p[0]);
+				counter = CurrencyType.getInstance(p[1]);
+			} catch (IOException e) {
+				// TODO ExchangeException?
+			}
+			
+			PairType pairType = new PairType(base, counter);
+			Pair pair = new Pair(this, pairType);
+
+			// ORDERTYPE
+			OrderType type = OrderType.BUY;
+			if(ExchangeBTCE.SELL.equals(value.get("type").getAsString()))
+				type = OrderType.SELL;
+
+			// AMOUNT
+			Currency amount = new Currency(value.get("amount").getAsDouble(), base);
+
+			// RATE
+			double rate = value.get("rate").getAsDouble();
+
+			// TIMESTAMP
+			long timestamp = value.get("timestamp_created").getAsLong();
+
+			result[i] = new Order(order_id, pair, type, amount, rate, timestamp, false);
+			i++;
+		}
+
+		return result;
 	}
 
 
@@ -186,7 +257,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 				postData += entry.getKey() + "=" + entry.getValue() + "&";
 			}
 			// remove last '&'
-			if(postData.length() > 0) // <- not necessary
+			if(postData.length() > 0)
 				postData = postData.substring(0, postData.length()-1);
 
 			// generate Sign
@@ -231,8 +302,8 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			ex.getTransactionHistory();
 			ex.getActiveOrders();
 			/*ex.cancelOrder(order_id);
-			ex.placeOrder(null, "sell", 199, 0.1);
-			ex.placeOrder(pair, "sell", 199, 0.1);*/
+			ex.placeOrder(null, "sell", 199, 0.1);*/
+			//ex.placeOrder(pair, ExchangeBTCE.SELL, 199, 0.1);
 		} catch (ExchangeException e) {
 			e.printStackTrace();
 		}

@@ -1,4 +1,5 @@
 package exchanges;
+import models.Order;
 import models.Pair;
 
 /**
@@ -47,8 +48,7 @@ public interface IExchange {
 	 * Gets all active orders.
 	 * @throws ExchangeException
 	 */
-	// TODO change return type (i.e. Order[])
-	public void getActiveOrders() throws ExchangeException;
+	public Order[] getActiveOrders() throws ExchangeException;
 
 	/**
 	 * Gets the transaction history.
