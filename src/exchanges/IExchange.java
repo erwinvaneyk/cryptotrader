@@ -63,4 +63,24 @@ public interface IExchange {
 	 */
 	// TODO change return type
 	public void getTradeHistory(Pair pair) throws ExchangeException;
+	
+	/**
+	 * Places a new Sell order. (placeOrder shortcut)
+	 * @param pair Pair to use.
+	 * @param rate The rate to buy/sell.
+	 * @param amount Amount to buy/sell.
+	 * @return order id.
+	 * @throws ExchangeException
+	 */
+	public int sellOrder(Pair pair,  double rate, double amount) throws ExchangeException;
+	
+	/**
+	 * Places a new Buy order. (placeOrder shortcut)
+	 * @param pair Pair to use.
+	 * @param rate The rate to buy/sell.
+	 * @param amount Amount to buy/sell.
+	 * @return order id.
+	 * @throws ExchangeException
+	 */
+	public int buyOrder(Pair pair,  double rate, double amount) throws ExchangeException;
 }

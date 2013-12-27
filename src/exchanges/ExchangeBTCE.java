@@ -14,6 +14,8 @@ import models.PairType;
 import com.google.gson.JsonObject;
 public class ExchangeBTCE extends Exchange implements IExchange {
 	private static final String SETTINGS_PATH = "data/collectALL.keys";
+	private static final String SELL = "sell";
+	private static final String BUY = "buy";
 
 	protected String BASE_URL = "https://btc-e.com/";
 
@@ -75,8 +77,8 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 
 	@Override
-	public int placeOrder(Pair pair, String type, double rate, double amount)
-			throws ExchangeException {
+	public int placeOrder(Pair pair, String type, double rate, double amount) throws ExchangeException {
+		assert type.equals(ExchangeBTCE.BUY) || type.equals(ExchangeBTCE.SELL);
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "Trade");
 		args.put("pair", getFormatPair(pair));
@@ -89,6 +91,17 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		System.out.println(html);
 		
 		return 0;
+	}
+	
+	@Override
+	public int sellOrder(Pair pair, double rate, double amount)	throws ExchangeException {
+		return placeOrder(pair,ExchangeBTCE.SELL,rate,amount);
+	}
+
+
+	@Override
+	public int buyOrder(Pair pair, double rate, double amount) throws ExchangeException {
+		return placeOrder(pair, ExchangeBTCE.BUY, rate, amount);
 	}
 
 
