@@ -3,9 +3,13 @@ package cli;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
+
 import models.*;
+
 import org.apache.commons.cli.*;
+
 import exchanges.ExchangeBTCE;
+import exchanges.ExchangeException;
 
 public class CryptotraderCLI {
 	private ExchangeBTCE ex;
@@ -53,10 +57,14 @@ public class CryptotraderCLI {
 					sellAction(parser, args);
 				} else if(args[0].equalsIgnoreCase("cancel")) {
 					cancelAction(parser, args);
+				} else if(args[0].equalsIgnoreCase("history")) {
+					tradeHistoryAction(parser, args);
+				} else if(args[0].equalsIgnoreCase("recenttrades")) {
+					recentTradesAction(parser, args);
 				} else if(args[0].equalsIgnoreCase("exit") || args[0].equalsIgnoreCase("quit")) {
 					keeponrunning = false;
 				} else {
-					throw new Exception("unknown command");
+					throw new CLIException("unknown command");
 				}
 
 			} catch (Exception e) {
@@ -66,7 +74,7 @@ public class CryptotraderCLI {
 		reader.close();
 		System.out.println("Application closed.");
 	}
-	
+
 	private void helpAction(CommandLineParser parser, String[] args) throws Exception {
 		Options options = new Options();
 		options.addOption("tick", false, "Retrieves the newest data for a specific pair.");
@@ -75,6 +83,8 @@ public class CryptotraderCLI {
 		options.addOption("sell", false, "Sells an amount of the base currency for a specified rate.");
 		options.addOption("buy", false, "Buys an amount of the base currency for a specified rate.");
 		options.addOption("cancel", false, "Cancels a specific order.");
+		options.addOption("recenttrades", false, "Returns the recent trades for a specific pair.");
+		options.addOption("history", false, "Retrieves the trade history of the user.");
 		options.addOption("help", false, "This.");
 		options.addOption("exit", false, "Exit the CLI application. (Same functionality as 'quit')");
 		HelpFormatter formatter = new HelpFormatter();
@@ -97,12 +107,41 @@ public class CryptotraderCLI {
 		}
 	}
 	
-	private void balanceAction(CommandLineParser parser, String[] args) throws Exception {
+	private void balanceAction(CommandLineParser parser, String[] args) throws ExchangeException {
 		ex.getInfo();
 	}
 	
-	private void activeOrdersAction(CommandLineParser parser, String[] args) throws Exception {
+
+	
+	private void tradeHistoryAction(CommandLineParser parser, String[] args) throws ExchangeException {
+		ex.getTradeHistory();
+		
+	}
+	
+	private void activeOrdersAction(CommandLineParser parser, String[] args) throws ExchangeException {
 		System.out.println(Arrays.toString(ex.getActiveOrders()));
+	}
+	
+	private void recentTradesAction(CommandLineParser parser, String[] args) throws Exception {
+		// Option setup
+		Options options = new Options();
+		options.addOption("p", "pair", true, "An (exchange-)supported pair");
+		options.addOption("c", "count", true, "The number of recent trades to retrieeve.");
+		CommandLine line = parser.parse(options, args);
+		//If no arguments provided, show help
+		if(line.getOptions().length == 0) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("recenttrades", options);
+		} else {
+			// If pair argument are missing, show error
+			if((line.getOptionValue("p") == null))
+				throw new CLIException("Argument missing");
+			else {
+				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
+				int count = Integer.parseInt(line.getOptionValue("r","5"));
+				ex.getRecentTrades(pair, count);			
+			}
+		}
 	}
 	
 	private void sellAction(CommandLineParser parser, String[] args) throws Exception {
@@ -113,18 +152,18 @@ public class CryptotraderCLI {
 		options.addOption("a", "amount", true, "The amount of the base currency to sell (default: 0.01)");
 		CommandLine line = parser.parse(options, args);
 		// If no arguments are provided, show help
-		if(line.getOptions().length == 1) {
+		if(line.getOptions().length == 0) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("sell", options);
 		} else {
 			// If pair argument are missing, show error
 			if((line.getOptionValue("p") == null) || (line.getOptionValue("r") == null)) 
-				throw new Exception("Argument missing");
+				throw new CLIException("Argument missing");
 			else {
 				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
 				double rate = Double.parseDouble(line.getOptionValue("r"));				
 				double amount = Double.parseDouble(line.getOptionValue("a","0.01"));
-				if(rate < (pair.getBuy() * 1.1)) throw new Exception("Sell order is too risky.");
+				if(rate < (pair.getBuy() * 1.1)) throw new CLIException("Sell order is too risky.");
 				int id = ex.sellOrder(pair, rate, amount);
 				System.out.println("Order created! ID: " + id);
 			}
@@ -138,20 +177,19 @@ public class CryptotraderCLI {
 		options.addOption("r", "rate", true, "The rate for the buy order (1 base currency for X counter currency)");
 		options.addOption("a", "amount", true, "The amount of the base currency to buy (default: 0.01)");
 		CommandLine line = parser.parse(options, args);
-		// If no arguments are provided, show help
-		if(line.getOptions().length == 1) {
-			System.out.println("1");
+		// If no arguments are provided, show help'
+		if(line.getOptions().length == 0) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("buy", options);
 		} else {
 			// If pair argument are missing, show error
 			if((line.getOptionValue("p") == null) || (line.getOptionValue("r") == null)) 
-				throw new Exception("Argument missing");
+				throw new CLIException("Argument missing");
 			else {
 				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
 				double rate = Double.parseDouble(line.getOptionValue("r"));				
 				double amount = Double.parseDouble(line.getOptionValue("a","0.01"));
-				if(rate > (pair.getSell() * 0.9)) throw new Exception("Buy order is too risky.");
+				if(rate > (pair.getSell() * 0.9)) throw new CLIException("Buy order is too risky.");
 				int id = ex.buyOrder(pair, rate, amount);
 				System.out.println("Order created! ID: " + id);
 			}
