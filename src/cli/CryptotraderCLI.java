@@ -114,8 +114,11 @@ public class CryptotraderCLI {
 
 	
 	private void tradeHistoryAction(CommandLineParser parser, String[] args) throws ExchangeException {
-		ex.getTradeHistory();
-		
+		Order[] results = ex.getTradeHistory();
+		System.out.println("Trade history: (" + results.length  + ")");
+		for(Order order : results) {
+			System.out.println(order);
+		}
 	}
 	
 	private void activeOrdersAction(CommandLineParser parser, String[] args) throws ExchangeException {
