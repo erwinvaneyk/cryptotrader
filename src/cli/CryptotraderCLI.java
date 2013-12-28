@@ -141,7 +141,7 @@ public class CryptotraderCLI {
 				throw new CLIException("Argument missing");
 			else {
 				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
-				int count = Integer.parseInt(line.getOptionValue("r","5"));
+				int count = Integer.parseInt(line.getOptionValue("c","5"));
 				ex.getRecentTrades(pair, count);			
 			}
 		}
