@@ -148,7 +148,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		 * 			"amount": X,
 		 * 			"rate": X,
 		 * 			"timestamp_created": X,
-		 * 			"status": X
+		 * 			"status": X (IGNORED)
 		 * 		}, ...
 		 * 	}
 		 */
@@ -180,7 +180,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			PairType pairType = new PairType(base, counter);
 			Pair pair = new Pair(this, pairType);
 
-			// ORDERTYPE
+			// TYPE
 			OrderType type = OrderType.BUY;
 			if(ExchangeBTCE.SELL.equals(value.get("type").getAsString()))
 				type = OrderType.SELL;
@@ -194,8 +194,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			// TIMESTAMP
 			long timestamp = value.get("timestamp_created").getAsLong();
 
-			result[i] = new Order(order_id, pair, type, amount, rate, timestamp, false);
-			i++;
+			result[i++] = new Order(order_id, pair, type, amount, rate, timestamp, false);
 		}
 
 		return result;
@@ -243,7 +242,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 
 	@Override
-	public void getTradeHistory() throws ExchangeException {
+	public Order[] getTradeHistory() throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "TradeHistory");
 
@@ -254,9 +253,72 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			if(!"no trades".equals(e.getMessage()))
 				throw e;
 			
-			// return Order[0]
+			return new Order[0];
 		}
-		System.out.println(html);
+		
+		JsonObject ret = (JsonObject) getJsonObject(html).get("return");
+		
+		/**
+		 *  ret (return) looks like:
+		 *  {
+		 * 		"trade_id":{
+		 * 			"pair":"xxx_xxx",
+		 * 			"type":"sell/buy",
+		 * 			"amount": X,
+		 * 			"rate": X,
+		 * 			"order_id": X, (IGNORED)
+		 * 			"is_your_order": 0/1, (IGNORED)
+		 * 			"timestamp": X
+		 * 		}, ...
+		 * 	}
+		 */
+
+
+		int size = ret.entrySet().size();
+		Order[] result = new Order[size];
+
+		int i = 0;
+		Iterator<Entry<String, JsonElement>> it = ret.entrySet().iterator();
+		
+		while(it.hasNext()) {
+			Entry<String, JsonElement> entry = it.next();
+			// TRADE ID
+			int trade_id = Integer.parseInt(entry.getKey());
+
+			JsonObject value = (JsonObject) entry.getValue();
+			
+			// PAIR
+			String[] p = value.get("pair").getAsString().split("_");
+
+			CurrencyType base = null, counter = null;
+			try {
+				base = CurrencyType.getInstance(p[0]);
+				counter = CurrencyType.getInstance(p[1]);
+			} catch (IOException e) {
+				// TODO ExchangeException?
+			}
+
+			PairType pairType = new PairType(base, counter);
+			Pair pair = new Pair(this, pairType);
+
+			// TYPE
+			OrderType type = OrderType.BUY;
+			if(ExchangeBTCE.SELL.equals(value.get("type").getAsString()))
+				type = OrderType.SELL;
+
+			// AMOUNT
+			Currency amount = new Currency(value.get("amount").getAsDouble(), base);
+
+			// RATE
+			double rate = value.get("rate").getAsDouble();
+
+			// TIMESTAMP
+			long timestamp = value.get("timestamp").getAsLong();
+
+			result[i++] = new Order(trade_id, pair, type, amount, rate, timestamp, true);
+		}
+		
+		return result;
 	}
 
 

@@ -48,10 +48,10 @@ public interface IExchange {
 
 	/**
 	 * Gets the trade history.
+	 * @return 
 	 * @throws ExchangeException
 	 */
-	// TODO change return type
-	public void getTradeHistory() throws ExchangeException;
+	public Order[] getTradeHistory() throws ExchangeException;
 	
 	/**
 	 * Places a new Sell order.
