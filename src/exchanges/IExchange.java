@@ -17,14 +17,6 @@ public interface IExchange {
 	public Pair updatePair(Pair pair) throws ExchangeException;
 
 	/**
-	 * Determines if this Exchange supports Pair pair.
-	 * @param pair Pair to be checked.
-	 * @return true iff the Pair is supported.
-	 * @throws ExchangeException
-	 */
-	public boolean isValidPair(Pair pair) throws ExchangeException;
-
-	/**
 	 * Cancels an order.
 	 * @param orderId Order id.
 	 * @return true iff the order was successfully canceled.

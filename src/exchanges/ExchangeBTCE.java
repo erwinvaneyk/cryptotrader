@@ -88,15 +88,9 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		pair.setLast(ticker.get("last").getAsDouble());
 		pair.setVolume(ticker.get("vol").getAsLong());
 		pair.setLastUpdated(ticker.get("updated").getAsLong());
+		logger.info(pair.toString());
 		return pair;
 	}
-
-
-	@Override
-	public boolean isValidPair(Pair pair) throws ExchangeException {
-		return false;
-	}
-
 
 	private int placeOrder(Pair pair, String type, double rate, double amount) throws ExchangeException {
 		assert ExchangeBTCE.BUY.equals(type) || ExchangeBTCE.SELL.equals(type);

@@ -89,6 +89,6 @@ public class Order {
 	}
 
 	public String toString() {
-		return this.getType() + " " + this.getAmount() + " @ " + this.getRate() + " " + this.getPair().getType();
+		return "(id: " + this.getId() + ") " + this.getType() + " " + this.getAmount() + " @ " + this.getRate() + " " + this.getPair().getType();
 	}
 }
