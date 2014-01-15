@@ -1,30 +1,19 @@
 package exchanges;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import models.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import test.LogTest;
-import models.Currency;
-import models.CurrencyType;
-import models.Order;
-import models.OrderType;
-import models.Pair;
-import models.PairType;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 public class ExchangeBTCE extends Exchange implements IExchange {
 	private static final String SETTINGS_PATH = "data/collectALL.keys";
 	private static final String NAME = "BTC-E";
@@ -49,13 +38,34 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 	
 	@Override
-	public void getInfo() throws ExchangeException {
+	public Balance getBalance() throws ExchangeException {
 
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "getInfo");
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
 		validateRequest(getJsonObject(html));
-		System.out.println(html);
+		JsonObject ret = (JsonObject) getJsonObject(html).get("return");
+		JsonObject funds = (JsonObject) ret.get("funds");
+		Balance balance = new Balance(this);
+		for(Entry<String,JsonElement> entry : funds.entrySet()) {
+			String currencytype = entry.getKey();
+			Double amount = entry.getValue().getAsDouble();
+			try {
+				Currency cur = new Currency(amount, CurrencyType.getInstance(currencytype));
+				balance.getFunds().add(cur);
+			} catch (IOException e) { //IOException
+				logger.warn("getInfo(): Currency-type \""+ currencytype + "\" could not be found in the currencytypes declaration-file.");
+			}
+		}
+		if(ret.get("open_orders").getAsInt() > 0) {
+			try {
+				Order[] orders = this.getActiveOrders();
+				balance.setOpenOrders(new ArrayList<Order>(Arrays.asList(orders)));
+			} catch(ExchangeException e) {
+				logger.warn("getInfo(): Unable to retrieve the active orders.");
+			}
+		}
+		return balance;
 	}
 
 
@@ -145,20 +155,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		}
 		
 		JsonObject ret = (JsonObject) getJsonObject(html).get("return");
-		
-		/**
-		 * ret (return) looks like:
-		 * 	{
-		 * 		"order_id":{
-		 * 			"pair":"xxx_xxx",
-		 * 			"type":"sell/buy",
-		 * 			"amount": X,
-		 * 			"rate": X,
-		 * 			"timestamp_created": X,
-		 * 			"status": X (IGNORED)
-		 * 		}, ...
-		 * 	}
-		 */
 		
 		int size = ret.entrySet().size();
 		Order[] result = new Order[size];
@@ -265,22 +261,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		
 		JsonObject ret = (JsonObject) getJsonObject(html).get("return");
 		
-		/**
-		 *  ret (return) looks like:
-		 *  {
-		 * 		"trade_id":{
-		 * 			"pair":"xxx_xxx",
-		 * 			"type":"sell/buy",
-		 * 			"amount": X,
-		 * 			"rate": X,
-		 * 			"order_id": X, (IGNORED)
-		 * 			"is_your_order": 0/1, (IGNORED)
-		 * 			"timestamp": X
-		 * 		}, ...
-		 * 	}
-		 */
-
-
 		int size = ret.entrySet().size();
 		Order[] result = new Order[size];
 

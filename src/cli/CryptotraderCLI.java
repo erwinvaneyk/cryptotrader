@@ -108,7 +108,8 @@ public class CryptotraderCLI {
 	}
 	
 	private void balanceAction(CommandLineParser parser, String[] args) throws ExchangeException {
-		ex.getInfo();
+		Balance bal = ex.getBalance();
+		System.out.println(bal);
 	}
 	
 

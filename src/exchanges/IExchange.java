@@ -1,13 +1,12 @@
 package exchanges;
-import models.Order;
-import models.Pair;
+import models.*;
 
 /**
  * @author Tim Rensen
  */
 public interface IExchange {
 	
-	public void getInfo() throws ExchangeException;
+	public Balance getBalance() throws ExchangeException;
 	
 	/**
 	 * Updates a pair to the lastest values.

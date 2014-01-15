@@ -48,6 +48,14 @@ public class Balance {
 		return openOrders;
 	}
 
+	public void setFunds(ArrayList<Currency> funds) {
+		this.funds = funds;
+	}
+
+	public void setOpenOrders(ArrayList<Order> openOrders) {
+		this.openOrders = openOrders;
+	}
+
 	@Override
 	public String toString() {
 		return "Balance [exchange=" + exchange + ", funds=" + funds

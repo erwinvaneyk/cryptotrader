@@ -105,10 +105,13 @@ public abstract class Exchange {
 	
 	private String printArgs(Map<String, String> args) {
 		String out = "(";
-		for (Map.Entry<String, String> entry : args.entrySet()) {
-			out += (entry.getKey()+": "+entry.getValue() + ", ");
-
+		if (args != null) {
+			for (Map.Entry<String, String> entry : args.entrySet()) {
+				out += (entry.getKey()+": "+entry.getValue() + ", ");
+	
+			}
+			out = out.substring(0, out.length()-2);
 		}
-		return out.substring(0, out.length()-2) + ")"; 
+		return  out + ")"; 
 	}
 }
