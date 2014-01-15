@@ -12,6 +12,9 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -19,9 +22,12 @@ import com.google.gson.JsonParser;
 
 public abstract class Exchange {
 	protected String BASE_URL = "undefined/";
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	protected String HTTPRetriever(String url, Map<String, String> args) throws ExchangeException {
 		String result = "";
+
+		logger.info("Request: " + url + " - args:" + printArgs(args));
 		try {
 			URL u = new URL(url);
 			URLConnection connection = u.openConnection();
@@ -42,13 +48,8 @@ public abstract class Exchange {
 		} catch(Exception e) {
 			throw new ExchangeException(e.getMessage());
 		}
+		logger.info("Result:  " + result);
 		return result;
-	}
-	
-	
-	
-	protected int getNonce() {
-		return (int) new Date().getTime();
 	}
 	
 	public abstract String getName();
@@ -100,5 +101,14 @@ public abstract class Exchange {
 		} catch (NoSuchAlgorithmException e) {
 		}
 		return digest;
+	}
+	
+	private String printArgs(Map<String, String> args) {
+		String out = "(";
+		for (Map.Entry<String, String> entry : args.entrySet()) {
+			out += (entry.getKey()+": "+entry.getValue() + ", ");
+
+		}
+		return out.substring(0, out.length()-2) + ")"; 
 	}
 }

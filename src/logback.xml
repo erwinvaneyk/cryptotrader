@@ -13,7 +13,7 @@
   </appender>
   
   <!-- logs all raw communication between server and client -->
-  <logger name="exchanges.io">
+  <logger name="exchanges">
     <appender-ref ref="ExchangeIO-FILE" />
   </logger>
 

@@ -1,5 +1,7 @@
 package exchanges;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URLConnection;
@@ -9,6 +11,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import test.LogTest;
 import models.Currency;
 import models.CurrencyType;
 import models.Order;
@@ -29,13 +35,15 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 	private String key;
 	private String secret;
-
+	protected int nonce;
 	
-	public ExchangeBTCE() throws IOException {		
+	public ExchangeBTCE() throws IOException {
+		super();
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(ExchangeBTCE.SETTINGS_PATH));
 		this.key = prop.getProperty("key");
 		this.secret = prop.getProperty("secret");
+		this.nonce = Integer.parseInt(prop.getProperty("nonce"));
 		if (this.key == null || this.secret == null) throw new IOException("Key(s) invalid");
 	}
 
@@ -45,7 +53,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "getInfo");
-
 		String html = HTTPRetriever(BASE_URL + "tapi", args);
 		validateRequest(getJsonObject(html));
 		System.out.println(html);
@@ -373,27 +380,24 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		return pair.getType().getBase().getISOCode().toLowerCase() + "_" +
 			   pair.getType().getCounter().getISOCode().toLowerCase();
 	}
-
 	
-	public static void main(String[] args) throws IOException {
-		ExchangeBTCE ex  = new ExchangeBTCE();
-		CurrencyType ltc = CurrencyType.getInstance("ltc");
-		CurrencyType usd = CurrencyType.getInstance("usd");
-		PairType ltc_usd = new PairType(ltc, usd);
-		Pair pair = new Pair(ex, ltc_usd);
-		
+	protected long getNonce() {
+		assert this.nonce >= 0;
+		/* (time based nonce)
+		int sign = 9; //How many digits the nonce should be
+		long time = new Date().getTime();
+		long mtime = (long) (Math.floor(time/Math.pow(10,sign))*Math.pow(10, sign));
+		*/
+		this.nonce++;
 		try {
-			ex.updatePair(pair);
-			ex.getInfo();
-			ex.getTransactionHistory();
-			ex.getTradeHistory();
-			ex.getActiveOrders();
-			ex.getRecentTrades(pair, 5);
-			/*ex.cancelOrder(order_id);
-			//ex.placeOrder(pair, ExchangeBTCE.SELL, 199, 0.1);*/
-		} catch (ExchangeException e) {
-			e.printStackTrace();
+			Properties prop = new Properties();
+			prop.load(new FileInputStream(ExchangeBTCE.SETTINGS_PATH));
+			prop.setProperty("nonce", String.valueOf(this.nonce));
+			prop.store(new FileOutputStream(ExchangeBTCE.SETTINGS_PATH), "Settings");
+		} catch (IOException e) {
+			logger.warn("Could not save the updated nonce. (" + this.nonce + ")");
 		}
+		return this.nonce;
 	}
 
 
