@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+
 import models.*;
 
 import com.google.gson.*;
@@ -54,7 +55,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 				Currency cur = new Currency(amount, CurrencyType.getInstance(currencytype));
 				balance.getFunds().add(cur);
 			} catch (IOException e) { //IOException
-				logger.warn("getInfo(): Currency-type \""+ currencytype + "\" could not be found in the currencytypes declaration-file.");
+				logger.warn("getBalance(): Currency-type \""+ currencytype + "\" could not be found in the currencytypes declaration-file.");
 			}
 		}
 		if(ret.get("open_orders").getAsInt() > 0) {
@@ -62,7 +63,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 				Order[] orders = this.getActiveOrders();
 				balance.setOpenOrders(new ArrayList<Order>(Arrays.asList(orders)));
 			} catch(ExchangeException e) {
-				logger.warn("getInfo(): Unable to retrieve the active orders.");
+				logger.warn("getBalance(): Unable to retrieve the active orders.");
 			}
 		}
 		return balance;
@@ -88,7 +89,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		pair.setLast(ticker.get("last").getAsDouble());
 		pair.setVolume(ticker.get("vol").getAsLong());
 		pair.setLastUpdated(ticker.get("updated").getAsLong());
-		logger.info(pair.toString());
+		logger.info("updatePair(): " + pair.toString());
 		return pair;
 	}
 
@@ -193,7 +194,7 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 
 			result[i++] = new Order(order_id, pair, type, amount, rate, timestamp, false);
 		}
-
+		logger.info(Arrays.toString(result));
 		return result;
 	}
 
@@ -210,8 +211,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		} catch(ExchangeException e) {
 			if(!"no transactions".equals(e.getMessage()))
 				throw e;
-			
-			// return Order[0]
 		}
 		
 		System.out.println(html);
@@ -222,9 +221,10 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	 * Gets the 'count' most recent whether or not personal trades.
 	 * @param pair Pair to use.
 	 * @param count number of trades to obtain.
+	 * @return 
 	 * @throws ExchangeException
 	 */
-	public void getRecentTrades(Pair pair, int count) throws ExchangeException {
+	public Order[] getRecentTrades(Pair pair, int count) throws ExchangeException {
 		String url = BASE_URL + 
 				"api/2/" +
 				getFormatPair(pair) +
@@ -234,7 +234,16 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		String html = HTTPRetriever(url, null);
 		
 		JsonArray trades = getJsonArray(html);
-		System.out.println(trades);
+		Order[] orders = new Order[count];
+		for(int i = 0; i < trades.size(); i++) {
+			JsonObject item = (JsonObject) trades.get(i);
+			OrderType type = ((ExchangeBTCE.SELL.equals(item.get("trade_type").getAsString())) ? OrderType.BUY : OrderType.SELL);
+			Currency cur = new Currency(item.get("amount").getAsDouble(),pair.getType().getCounter());
+			Order order = new Order(item.get("tid").getAsLong(), pair, type, cur, item.get("price").getAsDouble(), item.get("date").getAsLong(),true);
+			orders[i] = order;
+		}
+		logger.info(Arrays.toString(orders));
+		return orders;
 	}
 
 
@@ -275,30 +284,26 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 			try {
 				base = CurrencyType.getInstance(p[0]);
 				counter = CurrencyType.getInstance(p[1]);
+			
+
+				PairType pairType = new PairType(base, counter);
+				Pair pair = new Pair(this, pairType);
+				// TYPE
+				OrderType type = OrderType.BUY;
+				if(ExchangeBTCE.SELL.equals(value.get("type").getAsString()))
+					type = OrderType.SELL;
+				
+				Currency amount = new Currency(value.get("amount").getAsDouble(), base);
+				double rate = value.get("rate").getAsDouble();
+				long timestamp = value.get("timestamp").getAsLong();
+	
+				result[i++] = new Order(trade_id, pair, type, amount, rate, timestamp, true);
 			} catch (IOException e) {
-				// TODO ExchangeException?
+				logger.warn("getTradeHistory(): currency " + base + " and/or " + counter + " could not be found in the currency-types declaration-file.");
+				i++;
 			}
-
-			PairType pairType = new PairType(base, counter);
-			Pair pair = new Pair(this, pairType);
-
-			// TYPE
-			OrderType type = OrderType.BUY;
-			if(ExchangeBTCE.SELL.equals(value.get("type").getAsString()))
-				type = OrderType.SELL;
-
-			// AMOUNT
-			Currency amount = new Currency(value.get("amount").getAsDouble(), base);
-
-			// RATE
-			double rate = value.get("rate").getAsDouble();
-
-			// TIMESTAMP
-			long timestamp = value.get("timestamp").getAsLong();
-
-			result[i++] = new Order(trade_id, pair, type, amount, rate, timestamp, true);
 		}
-		
+		logger.info(Arrays.toString(result));
 		return result;
 	}
 

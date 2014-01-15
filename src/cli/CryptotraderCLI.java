@@ -141,9 +141,9 @@ public class CryptotraderCLI {
 			if((line.getOptionValue("p") == null))
 				throw new CLIException("Argument missing");
 			else {
-				Pair pair = ex.updatePair(new Pair(ex,new PairType(line.getOptionValue("p"))));
+				Pair pair = new Pair(ex,new PairType(line.getOptionValue("p")));
 				int count = Integer.parseInt(line.getOptionValue("c","5"));
-				ex.getRecentTrades(pair, count);			
+				System.out.println(Arrays.toString(ex.getRecentTrades(pair, count)));			
 			}
 		}
 	}
