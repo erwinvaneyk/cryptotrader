@@ -1,11 +1,11 @@
-###Project
+###Project structuring
 [Project structure](http://stackoverflow.com/questions/1953048/java-project-structure-explained-for-newbies?answertab=votes#tab-top)
-
-###GUI
 [(Swing) GUI application structure example](http://best-practice-software-engineering.ifs.tuwien.ac.at/basic/arch-basic.html)
+
+[Maven guide](http://maven.apache.org/guides/getting-started/)
 
 ###Data management
 [ORMLite explained](http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_1.html#Getting-Started)
 
-#Meta
+###Meta
 [Markdown cheat sheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
