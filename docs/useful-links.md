@@ -1,10 +1,10 @@
-#Project
+###Project
 [Project structure](http://stackoverflow.com/questions/1953048/java-project-structure-explained-for-newbies?answertab=votes#tab-top)
 
-#GUI
+###GUI
 [(Swing) GUI application structure example](http://best-practice-software-engineering.ifs.tuwien.ac.at/basic/arch-basic.html)
 
-#Data management
+###Data management
 [ORMLite explained](http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_1.html#Getting-Started)
 
 #Meta
