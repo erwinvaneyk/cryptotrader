@@ -13,5 +13,8 @@
 
 [CLI guide](http://commons.apache.org/proper/commons-cli/usage.html)
 
+##Trading
+[Technical Analysis Lib (TALIB)](http://ta-lib.org/)
+
 ###Meta
 [Markdown cheat sheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
