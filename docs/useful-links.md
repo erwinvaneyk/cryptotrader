@@ -1,5 +1,6 @@
 ###Project structuring
 [Project structure](http://stackoverflow.com/questions/1953048/java-project-structure-explained-for-newbies?answertab=votes#tab-top)
+
 [(Swing) GUI application structure example](http://best-practice-software-engineering.ifs.tuwien.ac.at/basic/arch-basic.html)
 
 [Maven guide](http://maven.apache.org/guides/getting-started/)
