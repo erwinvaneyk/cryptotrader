@@ -1,4 +1,4 @@
-package test;
+package test.java.libraries;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;

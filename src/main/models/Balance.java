@@ -1,8 +1,8 @@
-package models;
+package main.models;
 
 import java.util.ArrayList;
 
-import exchanges.IExchange;
+import main.exchanges.IExchange;
 
 /**
  * The balance containing the funds and orders of associated with an exchange.

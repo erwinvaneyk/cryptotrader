@@ -1,4 +1,4 @@
-package exchanges;
+package main.exchanges;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import models.*;
+import main.models.*;
 
 import com.google.gson.*;
 public class ExchangeBTCE extends Exchange implements IExchange {
@@ -38,7 +38,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 	
-	@Override
 	public Balance getBalance() throws ExchangeException {
 
 		Map<String, String> args = new HashMap<String, String>();
@@ -70,7 +69,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 
-	@Override
 	public Pair updatePair(Pair pair) throws ExchangeException {
 		String url = BASE_URL + 
 				"api/2/" +
@@ -110,19 +108,16 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 		return ret.get("order_id").getAsInt();
 	}
 	
-	@Override
 	public int sellOrder(Pair pair, double rate, double amount)	throws ExchangeException {
 		return placeOrder(pair,ExchangeBTCE.SELL,rate,amount);
 	}
 
 
-	@Override
 	public int buyOrder(Pair pair, double rate, double amount) throws ExchangeException {
 		return placeOrder(pair, ExchangeBTCE.BUY, rate, amount);
 	}
 
 
-	@Override
 	public void cancelOrder(int orderId) throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "CancelOrder");
@@ -133,7 +128,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 
-	@Override
 	public Order[] getActiveOrders() throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "ActiveOrders");
@@ -199,7 +193,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 
-	@Override
 	public void getTransactionHistory() throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "TransHistory");
@@ -247,7 +240,6 @@ public class ExchangeBTCE extends Exchange implements IExchange {
 	}
 
 
-	@Override
 	public Order[] getTradeHistory() throws ExchangeException {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("method", "TradeHistory");

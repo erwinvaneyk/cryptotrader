@@ -1,4 +1,4 @@
-package exchanges;
+package main.exchanges;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.Mac;

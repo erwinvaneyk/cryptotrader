@@ -1,5 +1,5 @@
-package exchanges;
-import models.*;
+package main.exchanges;
+import main.models.*;
 
 /**
  * @author Tim Rensen

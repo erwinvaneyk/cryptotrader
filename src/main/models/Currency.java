@@ -1,4 +1,4 @@
-package models;
+package main.models;
 
 /**
  * Model containing info about the quantity of a currency.

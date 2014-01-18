@@ -1,20 +1,19 @@
-package cli;
+package main.cli;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import models.*;
+import main.exchanges.ExchangeBTCE;
+import main.exchanges.ExchangeException;
+import main.models.*;
 
 import org.apache.commons.cli.*;
-
-import exchanges.ExchangeBTCE;
-import exchanges.ExchangeException;
 
 public class CryptotraderCLI {
 	private ExchangeBTCE ex;
 	
-	private static String NAME = "Cryptotrader CLI v0.1";
+	private static String NAME = "Cryptotrader CLI v0.2";
 	
 	private boolean keeponrunning = true; // Keep program running
 	
@@ -28,7 +27,6 @@ public class CryptotraderCLI {
 			System.out.println("[error] " + e.getMessage());
 		}
 	}
-	
 	
 	public void setup() throws IOException {
 		ex  = new ExchangeBTCE();
@@ -85,12 +83,12 @@ public class CryptotraderCLI {
 		options.addOption("cancel", false, "Cancels a specific order.");
 		options.addOption("recenttrades", false, "Returns the recent trades for a specific pair.");
 		options.addOption("history", false, "Retrieves the trade history of the user.");
+		//options.addOption("transactions", false, "Retrieves the transaction (deposits/withdraws) history of the user.");
 		options.addOption("help", false, "This.");
 		options.addOption("exit", false, "Exit the CLI application. (Same functionality as 'quit')");
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("Cryptotrader CLI", options);
 	}
-
 
 	private void tickAction(CommandLineParser parser, String[] args) throws Exception {
 		Options options = new Options();
@@ -111,8 +109,6 @@ public class CryptotraderCLI {
 		Balance bal = ex.getBalance();
 		System.out.println(bal);
 	}
-	
-
 	
 	private void tradeHistoryAction(CommandLineParser parser, String[] args) throws ExchangeException {
 		Order[] results = ex.getTradeHistory();
@@ -143,7 +139,11 @@ public class CryptotraderCLI {
 			else {
 				Pair pair = new Pair(ex,new PairType(line.getOptionValue("p")));
 				int count = Integer.parseInt(line.getOptionValue("c","5"));
-				System.out.println(Arrays.toString(ex.getRecentTrades(pair, count)));			
+				Order[] trades = ex.getRecentTrades(pair, count);
+				System.out.println("The " + count + " recent trade(s) for the pair " + pair.getType() + ":");
+				for(Order trade : trades) {
+					System.out.println(trade);
+				}
 			}
 		}
 	}

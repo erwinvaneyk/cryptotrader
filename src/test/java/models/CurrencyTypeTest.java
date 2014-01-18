@@ -1,4 +1,4 @@
-package test.models;
+package test.java.models;
 
 import static org.junit.Assert.*;
 
@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import models.CurrencyType;
+import main.models.CurrencyType;
 
 import org.junit.Test;
 

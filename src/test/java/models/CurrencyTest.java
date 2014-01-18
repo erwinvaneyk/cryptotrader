@@ -1,8 +1,8 @@
-package test.models;
+package test.java.models;
 
 import static org.junit.Assert.*;
-import models.Currency;
-import models.CurrencyType;
+import main.models.Currency;
+import main.models.CurrencyType;
 
 import org.junit.Test;
 

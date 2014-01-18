@@ -5,6 +5,10 @@
 
 [Maven guide](http://maven.apache.org/guides/getting-started/)
 
+[Differences between Maven and Ant](http://stackoverflow.com/questions/603189/differences-between-ant-and-maven)
+
+[Branch structuring](http://nvie.com/posts/a-successful-git-branching-model/)
+
 ###Data management
 [ORMLite explained](http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_1.html#Getting-Started)
 

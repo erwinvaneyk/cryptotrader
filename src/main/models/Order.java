@@ -1,4 +1,4 @@
-package models;
+package main.models;
 
 /**
  * The Order-class contains information about a placed or executed order on a exchange

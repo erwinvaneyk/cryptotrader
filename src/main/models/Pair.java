@@ -1,4 +1,4 @@
-package models;
+package main.models;
 
 /**
  * Model for holding pair-related information.
