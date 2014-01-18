@@ -18,4 +18,5 @@ target/
 # Local database files
 *.db
 
+# Keys
 data/collectALL.keys
