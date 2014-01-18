@@ -1,9 +1,10 @@
 *.class
-collectALL.keys
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 bin/
+target/
+.settings/
 
 # Package Files #
 *.war
@@ -11,3 +12,9 @@ bin/
 .project
 .classpath
 .log
+
+# Log files
+*.log
+
+# Local database files
+*.db
