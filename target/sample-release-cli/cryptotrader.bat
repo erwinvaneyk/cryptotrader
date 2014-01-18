@@ -1,0 +1,1 @@
+java -jar cryptotrader-0.1.0.jar
