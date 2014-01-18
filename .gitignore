@@ -11,10 +11,11 @@ target/
 *.ear
 .project
 .classpath
-.log
 
 # Log files
 *.log
 
 # Local database files
 *.db
+
+data/collectALL.keys
