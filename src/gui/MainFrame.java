@@ -22,6 +22,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setMinimumSize(new Dimension(800, 600));
+		setLocationRelativeTo(null);
 		
 		addMenuBar();
 		addPanels();
