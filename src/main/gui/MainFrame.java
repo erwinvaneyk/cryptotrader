@@ -1,4 +1,4 @@
-package gui;
+package main.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -221,7 +221,6 @@ public class MainFrame extends JFrame {
 	private class SwapListener implements MouseListener, MouseMotionListener {
 		private int selected, grabY;
 		
-		@Override
 		public void mouseDragged(MouseEvent e) {
 			if(selected != -1
 					&& e.getY() >= 0
@@ -264,7 +263,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-		@Override
 		public void mousePressed(MouseEvent e) {
 			if(e.getY() > prefixsum.get(prefixsum.size()-1)) {
 				selected = -1;
@@ -281,19 +279,15 @@ public class MainFrame extends JFrame {
 			grabY = e.getY() - start;
 		}
 
-		@Override
+
 		public void mouseReleased(MouseEvent e) {}
 		
-		@Override
 		public void mouseClicked(MouseEvent e) {}
 		
-		@Override
 		public void mouseMoved(MouseEvent e) {}
 
-		@Override
 		public void mouseEntered(MouseEvent e) {}
 
-		@Override
 		public void mouseExited(MouseEvent e) {}
 		
 	}

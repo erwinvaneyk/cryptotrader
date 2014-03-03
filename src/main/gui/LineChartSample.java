@@ -1,4 +1,4 @@
-package gui;
+package main.gui;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -66,13 +66,13 @@ public class LineChartSample extends Application {
         final Label label = createDataThresholdLabel(priorValue, value);
    
         setOnMouseEntered(new EventHandler<MouseEvent>() {
-          @Override public void handle(MouseEvent mouseEvent) {
+          public void handle(MouseEvent mouseEvent) {
             getChildren().setAll(label);
             toFront();
           }
         });
         setOnMouseExited(new EventHandler<MouseEvent>() {
-          @Override public void handle(MouseEvent mouseEvent) {
+          public void handle(MouseEvent mouseEvent) {
             getChildren().clear();
           }
         });
