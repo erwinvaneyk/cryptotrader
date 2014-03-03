@@ -202,7 +202,7 @@ public class MainFrame extends JFrame {
 			prefixsum.add(sum);
 		}
 		
-		revalidate();
+		validate();
 		repaint();
 		
 		/*System.out.println(panelsLeft);
