@@ -1,6 +1,6 @@
 #cryptotrader
 
-Trading platform for various cryptocurrencies (BTC, LTC)
+Trading platform for various cryptocurrencies (BTC, LTC). At the moment the application is avaliable as a commandline interface (CLI). In future versions a graphical user interface will be added.
 
 ##Installation
 1. Download the sources and configure it as a maven-project in Eclipse.
